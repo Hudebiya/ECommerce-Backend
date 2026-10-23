@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Poppins", sans-serif;
+  --font-display: "Playfair Display", serif;
+
+  --color-ink: #092328;      /* sab se dark */
+  --color-deep: #12544f;     /* deep teal */
+  --color-leaf: #2a835f;     /* main green */
+  --color-sage: #8bbb92;     /* light accent */
+  --color-mist: #eef5ef;     /* page background (sage ka bohat halka shade) */
+}
+
+body {
+  background-color: var(--color-mist);
+  color: var(--color-ink);
+}
+
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--color-mist); }
+::-webkit-scrollbar-thumb { background: var(--color-leaf); border-radius: 10px; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.toast-in {
+  animation: toast-in 0.3s ease-out;
+}
