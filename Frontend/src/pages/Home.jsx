@@ -39,15 +39,22 @@ export default function Home() {
 
   const categories = ["all", ...new Set(products.map((p) => p.category))];
 
-  const filtered = products
-    .filter((p) => category === "all" || p.category === category)
-    .filter((p) => p.title.toLowerCase().includes(search.trim().toLowerCase()))
-    .sort((a, b) => {
-      if (sort === "low") return a.price - b.price;
-      if (sort === "high") return b.price - a.price;
-      if (sort === "rating") return b.rating - a.rating;
-      return 0;
-    });
+const normalize = (s) => String(s ?? "").toLowerCase().replace(/-/g, " ");
+
+const words = normalize(search).trim().split(/\s+/).filter(Boolean);
+
+const filtered = products
+  .filter((p) => category === "all" || p.category === category)
+  .filter((p) => {
+    const text = normalize(`${p.title} ${p.brand} ${p.category}`);
+    return words.every((w) => text.includes(w));
+  })
+  .sort((a, b) => {
+    if (sort === "low") return a.price - b.price;
+    if (sort === "high") return b.price - a.price;
+    if (sort === "rating") return b.rating - a.rating;
+    return 0;
+  });
 
   const clearFilters = () => {
     setSearch("");
