@@ -25,7 +25,7 @@ async function registerUser(req, res) {
     const token= jwt.sign({
         id: user._id,
         role: user.role
-    },"0ed127bf813f2f9224813e45631b1571")
+    },process.env.JWT_SECRET_KEY)
 
     res.cookie("token",token)
 
@@ -64,7 +64,7 @@ async function loginUser(req, res) {
     const token= jwt.sign({
         id: user._id,
         role: user.role
-    },MONGODB_URI)
+    },process.env.JWT_SECRET_KEY)
 
     res.cookie("token",token)
 

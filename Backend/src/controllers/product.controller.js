@@ -27,4 +27,21 @@ async function createProduct(req, res) {
     })
 }
 
-export {createProduct}
+async function getProducts(req,res){
+    try {
+        
+        const products = await productModel.find().populate("admin","username email")
+        res.status(200).json({
+            message:"Products fetched sucessfully",
+            products
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message:"Failed to fetch Products",
+            error:error.message
+        })
+    }
+}
+
+export {createProduct ,getProducts}
