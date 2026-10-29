@@ -1,7 +1,7 @@
 import ImageKit from '@imagekit/nodejs';
 
 const client = new ImageKit({
-  privateKey: ""
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY
 });
 
 async function uploadFile(buffer){

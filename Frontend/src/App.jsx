@@ -9,6 +9,9 @@ import Cart from "./pages/Cart";
 import NotFound from "./pages/NotFound";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   const location = useLocation();
@@ -19,12 +22,18 @@ export default function App() {
       <main className="flex-1">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<PageTransition><Home /></PageTransition>} />
-            <Route path="/product/:id" element={<PageTransition><ProductDetail /></PageTransition>} />
-            <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
-            <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
-            <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
-            <Route path="/order-success" element={<PageTransition><OrderSuccess /></PageTransition>} />
+            <Route element={<ProtectedRoute guestOnly />}>
+              <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+              <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+              <Route path="/product/:id" element={<PageTransition><ProductDetail /></PageTransition>} />
+              <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
+              <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
+              <Route path="/order-success" element={<PageTransition><OrderSuccess /></PageTransition>} />
+              <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+            </Route>
           </Routes>
         </AnimatePresence>
       </main>
