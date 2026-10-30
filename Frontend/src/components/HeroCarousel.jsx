@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HeroCarousel({ products }) {
   const [index, setIndex] = useState(0);
@@ -33,14 +33,14 @@ export default function HeroCarousel({ products }) {
       {/* slides */}
       {products.map((p, i) => (
         <div
-          key={p.id}
+          key={p._id}
           className={`absolute inset-0 transition-opacity duration-700 ${
             i === index ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
         >
           <img
-            src={p.images?.[0] ?? p.thumbnail}
-            alt={p.title}
+            src={p.image}
+            alt={p.name}
             draggable={false}
             className={`w-full h-full object-contain p-10 pb-32 transition-transform duration-[4000ms] ease-out ${
               i === index ? "scale-110" : "scale-100"
@@ -49,21 +49,13 @@ export default function HeroCarousel({ products }) {
 
           {/* neeche info */}
           <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-ink via-ink/80 to-transparent">
-            <span className="text-xs text-sage uppercase tracking-widest">
-              {p.category}
-            </span>
             <h3 className="font-display text-2xl font-bold text-white line-clamp-1 mt-1">
-              {p.title}
+              {p.name}
             </h3>
             <div className="flex items-center justify-between mt-3">
-              <div className="flex items-center gap-3">
-                <span className="text-xl font-bold text-sage">${p.price}</span>
-                <span className="flex items-center gap-1 text-sm text-white/70">
-                  <Star size={14} className="fill-sage text-sage" /> {p.rating}
-                </span>
-              </div>
+              <span className="text-xl font-bold text-sage">${p.price}</span>
               <Link
-                to={`/product/${p.id}`}
+                to={`/product/${p._id}`}
                 className="bg-sage text-ink text-sm font-semibold px-5 py-2 rounded-full hover:bg-white transition"
               >
                 View

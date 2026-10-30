@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Star, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { motion } from "framer-motion";
 
@@ -15,28 +15,20 @@ export default function ProductCard({ product }) {
   className="group bg-white rounded-3xl overflow-hidden border border-sage/30 hover:shadow-2xl hover:shadow-deep/20 transition-shadow duration-300"
 >
 
-      <Link to={`/product/${product.id}`} className="block relative bg-mist aspect-square overflow-hidden">
+      <Link to={`/product/${product._id}`} className="block relative bg-mist aspect-square overflow-hidden">
         <img
-          src={product.thumbnail}
-          alt={product.title}
+          src={product.image}
+          alt={product.name}
           className="w-full h-full object-contain p-4 group-hover:scale-110 transition duration-500"
         />
-        <span className="absolute top-3 left-3 bg-ink/80 text-sage text-xs font-medium px-3 py-1 rounded-full capitalize">
-          {product.category}
-        </span>
       </Link>
 
       <div className="p-5">
-        <Link to={`/product/${product.id}`}>
+        <Link to={`/product/${product._id}`}>
           <h3 className="font-semibold line-clamp-1 hover:text-leaf transition">
-            {product.title}
+            {product.name}
           </h3>
         </Link>
-
-        <div className="flex items-center gap-1 mt-1 text-sm text-ink/60">
-          <Star size={14} className="fill-leaf text-leaf" />
-          {product.rating}
-        </div>
 
         <div className="flex items-center justify-between mt-4">
           <span className="text-xl font-bold text-deep">${product.price}</span>

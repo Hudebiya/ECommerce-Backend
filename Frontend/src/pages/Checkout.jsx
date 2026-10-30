@@ -203,14 +203,14 @@ export default function Checkout() {
 
           <div className="space-y-4 max-h-64 overflow-y-auto pr-1">
             {cart.map((it) => (
-              <div key={it.id} className="flex items-center gap-3">
+              <div key={it._id} className="flex items-center gap-3">
                 <img
-                  src={it.thumbnail}
-                  alt={it.title}
+                  src={it.image}
+                  alt={it.name}
                   className="w-14 h-14 object-contain bg-white/10 rounded-xl p-1"
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm line-clamp-1">{it.title}</p>
+                  <p className="text-sm line-clamp-1">{it.name}</p>
                   <p className="text-xs text-white/60">Qty: {it.qty}</p>
                 </div>
                 <p className="text-sm font-semibold">${(it.price * it.qty).toFixed(2)}</p>

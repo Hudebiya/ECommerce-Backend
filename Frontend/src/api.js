@@ -1,18 +1,12 @@
-const BASE_URL = "http://localhost:5000/api";
+const BASE_URL = "http://localhost:3000/api";
 
 export const getProducts = async () => {
-  const res = await fetch(`${BASE_URL}/products?limit=100`, { credentials: "include" });
-  const data = await res.json();
-  return data.products;
-};
+  const res = await fetch(`${BASE_URL}/product`, { credentials: "include" });
+  if (!res.ok) throw new Error(`Failed to load products (${res.status})`);
 
-export const getProductById = async (id) => {
-  const res = await fetch(`${BASE_URL}/products/${id}`, { credentials: "include" });
-  return res.json();
-};
-
-export const getProductsByCategory = async (category) => {
-  const res = await fetch(`${BASE_URL}/products/category/${category}`, { credentials: "include" });
   const data = await res.json();
+  if (!Array.isArray(data.products)) {
+    throw new Error("Invalid products response");
+  }
   return data.products;
 };

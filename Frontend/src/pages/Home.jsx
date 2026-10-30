@@ -22,7 +22,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("default");
   const [visible, setVisible] = useState(12);
 
@@ -35,30 +34,25 @@ export default function Home() {
 
   useEffect(() => {
     setVisible(12);
-  }, [search, category, sort]);
-
-  const categories = ["all", ...new Set(products.map((p) => p.category))];
+  }, [search, sort]);
 
 const normalize = (s) => String(s ?? "").toLowerCase().replace(/-/g, " ");
 
 const words = normalize(search).trim().split(/\s+/).filter(Boolean);
 
 const filtered = products
-  .filter((p) => category === "all" || p.category === category)
   .filter((p) => {
-    const text = normalize(`${p.title} ${p.brand} ${p.category}`);
+    const text = normalize(`${p.name} ${p.desc}`);
     return words.every((w) => text.includes(w));
   })
   .sort((a, b) => {
     if (sort === "low") return a.price - b.price;
     if (sort === "high") return b.price - a.price;
-    if (sort === "rating") return b.rating - a.rating;
     return 0;
   });
 
   const clearFilters = () => {
     setSearch("");
-    setCategory("all");
     setSort("default");
   };
 
@@ -173,30 +167,12 @@ const filtered = products
               <option value="default">Sort: Default</option>
               <option value="low">Price: Low to High</option>
               <option value="high">Price: High to Low</option>
-              <option value="rating">Top Rated</option>
             </select>
             <ChevronDown
               size={18}
               className="absolute right-5 top-1/2 -translate-y-1/2 text-ink/50 pointer-events-none"
             />
           </div>
-        </div>
-
-        {/* category chips */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-6">
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => setCategory(c)}
-              className={`shrink-0 capitalize text-sm px-5 py-2 rounded-full border transition ${
-                category === c
-                  ? "bg-deep text-white border-deep"
-                  : "bg-white text-ink/70 border-sage/40 hover:border-leaf hover:text-leaf"
-              }`}
-            >
-              {c.replace(/-/g, " ")}
-            </button>
-          ))}
         </div>
 
         {error && <p className="text-center text-red-600 mb-6">{error}</p>}
@@ -209,7 +185,7 @@ const filtered = products
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {loading
             ? Array.from({ length: 8 }).map((_, i) => <ProductSkeleton key={i} />)
-            : filtered.slice(0, visible).map((p) => <ProductCard key={p.id} product={p} />)}
+            : filtered.slice(0, visible).map((p) => <ProductCard key={p._id} product={p} />)}
         </div>
 
         {/* khali result */}

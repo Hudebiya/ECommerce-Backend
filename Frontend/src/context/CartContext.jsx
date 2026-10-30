@@ -23,41 +23,41 @@ export function CartProvider({ children }) {
 
   const addToCart = (product, qty = 1) => {
     setCart((prev) => {
-      const exists = prev.find((item) => item.id === product.id);
+      const exists = prev.find((item) => item._id === product._id);
       if (exists) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, qty: item.qty + qty } : item
+          item._id === product._id ? { ...item, qty: item.qty + qty } : item
         );
       }
       return [
         ...prev,
         {
-          id: product.id,
-          title: product.title,
+          _id: product._id,
+          name: product.name,
           price: product.price,
-          thumbnail: product.thumbnail,
+          image: product.image,
           qty,
         },
       ];
     });
 
-    showToast(`${product.title} added to cart`);
+    showToast(`${product.name} added to cart`);
   };
 
-  const increaseQty = (id) =>
+  const increaseQty = (_id) =>
     setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, qty: item.qty + 1 } : item))
+      prev.map((item) => (item._id === _id ? { ...item, qty: item.qty + 1 } : item))
     );
 
-  const decreaseQty = (id) =>
+  const decreaseQty = (_id) =>
     setCart((prev) =>
       prev.map((item) =>
-        item.id === id && item.qty > 1 ? { ...item, qty: item.qty - 1 } : item
+        item._id === _id && item.qty > 1 ? { ...item, qty: item.qty - 1 } : item
       )
     );
 
-  const removeFromCart = (id) =>
-    setCart((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCart = (_id) =>
+    setCart((prev) => prev.filter((item) => item._id !== _id));
 
   const clearCart = () => setCart([]);
 

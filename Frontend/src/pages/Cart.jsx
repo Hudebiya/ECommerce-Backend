@@ -46,7 +46,7 @@ export default function Cart() {
           <AnimatePresence mode="popLayout">
             {cart.map((item) => (
               <motion.div
-                key={item.id}
+                key={item._id}
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -55,30 +55,30 @@ export default function Cart() {
                 className="flex items-center gap-4 bg-white rounded-3xl p-4 border border-sage/30"
               >
                 <img
-                  src={item.thumbnail}
-                  alt={item.title}
+                  src={item.image}
+                  alt={item.name}
                   className="w-24 h-24 object-contain bg-mist rounded-2xl p-2"
                 />
 
                 <div className="flex-1 min-w-0">
                   <Link
-                    to={`/product/${item.id}`}
+                    to={`/product/${item._id}`}
                     className="font-semibold line-clamp-1 hover:text-leaf transition"
                   >
-                    {item.title}
+                    {item.name}
                   </Link>
                   <p className="text-deep font-bold mt-1">${item.price}</p>
 
                   <div className="inline-flex items-center gap-3 mt-3 bg-mist rounded-full px-2 py-1">
                     <button
-                      onClick={() => decreaseQty(item.id)}
+                      onClick={() => decreaseQty(item._id)}
                       className="w-7 h-7 rounded-full bg-white flex items-center justify-center hover:bg-sage transition"
                     >
                       <Minus size={14} />
                     </button>
                     <span className="w-5 text-center text-sm font-medium">{item.qty}</span>
                     <button
-                      onClick={() => increaseQty(item.id)}
+                      onClick={() => increaseQty(item._id)}
                       className="w-7 h-7 rounded-full bg-white flex items-center justify-center hover:bg-sage transition"
                     >
                       <Plus size={14} />
@@ -89,7 +89,7 @@ export default function Cart() {
                 <div className="text-right">
                   <p className="font-bold">${(item.price * item.qty).toFixed(2)}</p>
                   <button
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => removeFromCart(item._id)}
                     className="mt-3 text-ink/40 hover:text-red-600 transition"
                     aria-label="Remove"
                   >
