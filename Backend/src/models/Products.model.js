@@ -13,11 +13,16 @@ const productSchema= new mongoose.Schema({
         type: String,
         required:true
     },
+    price: { 
+        type: Number, 
+        required: true, 
+        min: 0 
+    },
     admin:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
         required:true
     }
-})
+}, { timestamps: true })
 const productModel = mongoose.model("product",productSchema)
 export default productModel

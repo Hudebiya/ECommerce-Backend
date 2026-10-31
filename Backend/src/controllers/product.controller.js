@@ -33,7 +33,7 @@ async function createProduct(req, res) {
 async function getProducts(req,res){
     try {
         
-        const products = await productModel.find().populate("admin","username email")
+       const products = await productModel.find().sort({ _id: -1 }).populate("admin","username email")
         res.status(200).json({
             message:"Products fetched sucessfully",
             products
