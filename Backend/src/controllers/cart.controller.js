@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import productModel from "../models/products.model.js";
+import productModel from "../models/Products.model.js";
 import userModel from "../models/users.model.js";
 
 function calculateCartTotal(cart) {
