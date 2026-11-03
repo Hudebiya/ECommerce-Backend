@@ -1,0 +1,100 @@
+diff --git a/node_modules/oauth/lib/oauth.js b/node_modules/oauth/lib/oauth.js
+index fb42970..dd81b0c 100644
+--- a/node_modules/oauth/lib/oauth.js
++++ b/node_modules/oauth/lib/oauth.js
+@@ -2,10 +2,22 @@ var crypto= require('crypto'),
+     sha1= require('./sha1'),
+     http= require('http'),
+     https= require('https'),
+-    URL= require('url'),
++    URL= global.URL,
+     querystring= require('querystring'),
+     OAuthUtils= require('./_utils');
+ 
++function parseUrl(value) {
++  var parsed = new URL(value);
++  return {
++    protocol: parsed.protocol,
++    host: parsed.host,
++    hostname: parsed.hostname,
++    port: parsed.port,
++    pathname: parsed.pathname,
++    query: querystring.parse(parsed.search.slice(1))
++  };
++}
++
+ exports.OAuth= function(requestUrl, accessUrl, consumerKey, consumerSecret, version, authorize_callback, signatureMethod, nonceSize, customHeaders) {
+   this._isEcho = false;
+ 
+@@ -91,7 +103,7 @@ exports.OAuth.prototype._getSignature= function(method, url, parameters, tokenSe
+ }
+ 
+ exports.OAuth.prototype._normalizeUrl= function(url) {
+-  var parsedUrl= URL.parse(url, true)
++  var parsedUrl= parseUrl(url)
+    var port ="";
+    if( parsedUrl.port ) {
+      if( (parsedUrl.protocol == "http:" && parsedUrl.port != "80" ) ||
+@@ -281,7 +293,7 @@ exports.OAuth.prototype._prepareParameters= function( oauth_token, oauth_token_s
+         if (extra_params.hasOwnProperty(key)) oauthParameters[key]= extra_params[key];
+       }
+     }
+-    var parsedUrl= URL.parse( url, false );
++    var parsedUrl= parseUrl(url);
+ 
+     if( parsedUrl.query ) {
+       var key2;
+@@ -313,7 +325,7 @@ exports.OAuth.prototype._performSecureRequest= function( oauth_token, oauth_toke
+   if( !post_content_type ) {
+     post_content_type= "application/x-www-form-urlencoded";
+   }
+-  var parsedUrl= URL.parse( url, false );
++  var parsedUrl= parseUrl(url);
+   if( parsedUrl.protocol == "http:" && !parsedUrl.port ) parsedUrl.port= 80;
+   if( parsedUrl.protocol == "https:" && !parsedUrl.port ) parsedUrl.port= 443;
+ 
+@@ -562,7 +574,7 @@ exports.OAuth.prototype.signUrl= function(url, oauth_token, oauth_token_secret,
+   }
+ 
+   var orderedParameters= this._prepareParameters(oauth_token, oauth_token_secret, method, url, {});
+-  var parsedUrl= URL.parse( url, false );
++  var parsedUrl= parseUrl(url);
+ 
+   var query="";
+   for( var i= 0 ; i < orderedParameters.length; i++) {
+diff --git a/node_modules/oauth/lib/oauth2.js b/node_modules/oauth/lib/oauth2.js
+index c7c8982..a174d34 100644
+--- a/node_modules/oauth/lib/oauth2.js
++++ b/node_modules/oauth/lib/oauth2.js
+@@ -2,9 +2,21 @@ var querystring= require('querystring'),
+     crypto= require('crypto'),
+     https= require('https'),
+     http= require('http'),
+-    URL= require('url'),
++    URL= global.URL,
+     OAuthUtils= require('./_utils');
+ 
++function parseUrl(value) {
++  var parsed = new URL(value);
++  return {
++    protocol: parsed.protocol,
++    host: parsed.host,
++    hostname: parsed.hostname,
++    port: parsed.port,
++    pathname: parsed.pathname,
++    query: querystring.parse(parsed.search.slice(1))
++  };
++}
++
+ exports.OAuth2= function(clientId, clientSecret, baseSite, authorizePath, accessTokenPath, customHeaders) {
+   this._clientId= clientId;
+   this._clientSecret= clientSecret;
+@@ -69,7 +81,7 @@ exports.OAuth2.prototype._chooseHttpLibrary= function( parsedUrl ) {
+ 
+ exports.OAuth2.prototype._request= function(method, url, headers, post_body, access_token, callback) {
+ 
+-  var parsedUrl= URL.parse( url, true );
++  var parsedUrl= parseUrl(url);
+   if( parsedUrl.protocol == "https:" && !parsedUrl.port ) {
+     parsedUrl.port= 443;
+   }

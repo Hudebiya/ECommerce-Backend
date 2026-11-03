@@ -1,0 +1,21 @@
+diff --git a/node_modules/passport-google-oauth20/lib/strategy.js b/node_modules/passport-google-oauth20/lib/strategy.js
+index 37a6c50..2f053fb 100644
+--- a/node_modules/passport-google-oauth20/lib/strategy.js
++++ b/node_modules/passport-google-oauth20/lib/strategy.js
+@@ -1,7 +1,6 @@
+ // Load modules.
+ var OAuth2Strategy = require('passport-oauth2')
+   , util = require('util')
+-  , uri = require('url')
+   , GooglePlusProfile = require('./profile/googleplus')
+   , OpenIDProfile = require('./profile/openid')
+   , InternalOAuthError = require('passport-oauth2').InternalOAuthError
+@@ -53,7 +52,7 @@ function Strategy(options, verify) {
+   this.name = 'google';
+   this._userProfileURL = options.userProfileURL || 'https://www.googleapis.com/oauth2/v3/userinfo';
+   
+-  var url = uri.parse(this._userProfileURL);
++  var url = new URL(this._userProfileURL);
+   if (url.pathname.indexOf('/userinfo') == (url.pathname.length - '/userinfo'.length)) {
+     this._userProfileFormat = 'openid';
+   } else {

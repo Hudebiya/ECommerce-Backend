@@ -1,0 +1,76 @@
+diff --git a/node_modules/passport-oauth2/lib/strategy.js b/node_modules/passport-oauth2/lib/strategy.js
+index 8575b72..4068269 100644
+--- a/node_modules/passport-oauth2/lib/strategy.js
++++ b/node_modules/passport-oauth2/lib/strategy.js
+@@ -1,6 +1,6 @@
+ // Load modules.
+ var passport = require('passport-strategy')
+-  , url = require('url')
++  , querystring = require('querystring')
+   , uid = require('uid2')
+   , crypto = require('crypto')
+   , base64url = require('base64url')
+@@ -15,6 +15,15 @@ var passport = require('passport-strategy')
+   , TokenError = require('./errors/tokenerror')
+   , InternalOAuthError = require('./errors/internaloautherror');
+ 
++function buildAuthorizationUrl(authorizationURL, params, clientId) {
++  var parsed = new URL(authorizationURL);
++  var query = querystring.parse(parsed.search.slice(1));
++  utils.merge(query, params);
++  query.client_id = clientId;
++  parsed.search = querystring.stringify(query);
++  return parsed.toString();
++}
++
+ 
+ /**
+  * Creates an instance of `OAuth2Strategy`.
+@@ -100,7 +109,7 @@ function OAuth2Strategy(options, verify) {
+   this._scope = options.scope;
+   this._scopeSeparator = options.scopeSeparator || ' ';
+   this._pkceMethod = (options.pkce === true) ? 'S256' : options.pkce;
+-  this._key = options.sessionKey || ('oauth2:' + url.parse(options.authorizationURL).hostname);
++  this._key = options.sessionKey || ('oauth2:' + new URL(options.authorizationURL).hostname);
+ 
+   if (options.store && typeof options.store == 'object') {
+     this._stateStore = options.store;
+@@ -141,11 +150,10 @@ OAuth2Strategy.prototype.authenticate = function(req, options) {
+ 
+   var callbackURL = options.callbackURL || this._callbackURL;
+   if (callbackURL) {
+-    var parsed = url.parse(callbackURL);
+-    if (!parsed.protocol) {
++    if (!/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(callbackURL)) {
+       // The callback URL is relative, resolve a fully qualified URL from the
+       // URL of the originating request.
+-      callbackURL = url.resolve(utils.originalURL(req, { proxy: this._trustProxy }), callbackURL);
++      callbackURL = new URL(callbackURL, utils.originalURL(req, { proxy: this._trustProxy })).toString();
+     }
+   }
+ 
+@@ -266,22 +274,14 @@ OAuth2Strategy.prototype.authenticate = function(req, options) {
+       //       state store.
+       params.state = state;
+       
+-      var parsed = url.parse(this._oauth2._authorizeUrl, true);
+-      utils.merge(parsed.query, params);
+-      parsed.query['client_id'] = this._oauth2._clientId;
+-      delete parsed.search;
+-      var location = url.format(parsed);
++      var location = buildAuthorizationUrl(this._oauth2._authorizeUrl, params, this._oauth2._clientId);
+       this.redirect(location);
+     } else {
+       function stored(err, state) {
+         if (err) { return self.error(err); }
+ 
+         if (state) { params.state = state; }
+-        var parsed = url.parse(self._oauth2._authorizeUrl, true);
+-        utils.merge(parsed.query, params);
+-        parsed.query['client_id'] = self._oauth2._clientId;
+-        delete parsed.search;
+-        var location = url.format(parsed);
++        var location = buildAuthorizationUrl(self._oauth2._authorizeUrl, params, self._oauth2._clientId);
+         self.redirect(location);
+       }
+ 
