@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AuthContext } from "./auth-context";
 
-const AUTH_URL = "http://localhost:3000/api/auth";
+const AUTH_URL = `${import.meta.env.VITE_API_URL}/api/auth`;
 
 async function readResponse(response) {
   const data = await response.json().catch(() => ({}));
@@ -80,4 +80,3 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
-
