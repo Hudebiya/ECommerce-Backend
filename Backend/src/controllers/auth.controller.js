@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs"
 
 const cookieOptions = {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     secure: process.env.NODE_ENV === "production"
 }
 
@@ -61,6 +61,9 @@ async function loginUser(req, res) {
             message:"User not found"
         })
     }
+    if (!user.password) {
+        return res.status(400).json({ message: "Please sign in with Google" })
+    }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if(!isPasswordValid){
         return res.status(401).json({
@@ -105,4 +108,4 @@ function logoutUser(req, res) {
     res.status(200).json({ message: "User logged out successfully" })
 }
 
-export { registerUser, loginUser, getCurrentUser, logoutUser }
+export { registerUser, loginUser, getCurrentUser, logoutUser, cookieOptions }

@@ -32,7 +32,7 @@ export default function OrderSuccess() {
         Order Placed!
       </h1>
       <p className="text-ink/70 mt-4">
-        Shukriya <span className="font-semibold">{state.name}</span>, aap ka order qubool ho gaya hai.
+        Thanks! <span className="font-semibold">{state.name}</span>, Your Order is Successfully Added.
       </p>
 
       <div className="bg-white rounded-3xl border border-sage/30 p-6 mt-8 text-left space-y-3">

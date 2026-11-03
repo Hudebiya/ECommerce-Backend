@@ -77,7 +77,7 @@ export default function Checkout() {
           <ShoppingBag size={44} />
         </span>
         <h2 className="font-display text-3xl font-bold mt-6">Nothing to checkout</h2>
-        <p className="text-ink/60 mt-2">Pehle cart mein kuch products add karein.</p>
+        <p className="text-ink/60 mt-2">Add some Products.</p>
         <Link
           to="/"
           className="inline-block mt-8 bg-deep text-white px-8 py-3 rounded-full hover:bg-leaf transition"
@@ -167,8 +167,8 @@ export default function Checkout() {
 
             <div className="grid sm:grid-cols-2 gap-4">
               {[
-                { value: "cod", label: "Cash on Delivery", text: "Delivery par payment karein", icon: Banknote },
-                { value: "card", label: "Card (demo)", text: "Abhi sirf dikhane ke liye", icon: CreditCard },
+                { value: "cod", label: "Cash on Delivery", text: "Pay on Delivery ", icon: Banknote },
+                { value: "card", label: "Card (demo)", text: "Only for example", icon: CreditCard },
               ].map(({ value, label, text, icon: Icon }) => (
                 <label
                   key={value}

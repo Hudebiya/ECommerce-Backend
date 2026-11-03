@@ -11,9 +11,14 @@ const userSchema= new mongoose.Schema({
         unique: true,
         required:true
     },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
     password: {
         type: String,
-        required:true
+        required: function () { return !this.googleId; }
     },
     role:{
         type: String,

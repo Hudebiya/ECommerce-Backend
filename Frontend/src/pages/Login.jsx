@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff, Leaf } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/auth-context";
 import { useToast } from "../context/ToastContext";
 
@@ -10,6 +10,7 @@ export default function Login() {
   const { login } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
@@ -77,6 +78,11 @@ export default function Login() {
             <h2 className="font-display text-3xl font-bold">Sign in</h2>
             <p className="mt-2 text-sm text-ink/60">Enter your account details below.</p>
           </div>
+          {searchParams.get("error") === "google" && (
+            <p role="alert" className="mb-5 text-center text-sm text-red-600">
+              Google sign-in failed, please try again
+            </p>
+          )}
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
             <div>
@@ -134,6 +140,25 @@ export default function Login() {
             </button>
             {formError && <p role="alert" className="text-center text-sm text-red-600">{formError}</p>}
           </form>
+
+          <div className="my-5 flex items-center gap-4 text-sm text-ink/50">
+            <span className="h-px flex-1 bg-sage/50" />
+            <span>or</span>
+            <span className="h-px flex-1 bg-sage/50" />
+          </div>
+          <button
+            type="button"
+            onClick={() => { window.location.href = import.meta.env.VITE_API_URL + "/api/auth/google"; }}
+            className="flex w-full items-center justify-center gap-3 rounded-full border border-sage/60 bg-white px-6 py-3.5 font-semibold text-ink transition hover:bg-mist focus-visible:outline-2 focus-visible:outline-leaf"
+          >
+            <svg aria-hidden="true" viewBox="0 0 48 48" className="h-5 w-5">
+              <path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11c-.5 2.5-2 4.7-4.2 6.1v5.1h6.8c4-3.7 6-9.1 6-14.9z" />
+              <path fill="#34A853" d="M24 44c5.4 0 9.9-1.8 13.2-4.8l-6.8-5.1c-1.8 1.2-4 1.9-6.4 1.9-4.9 0-9.1-3.3-10.6-7.7H6.4v5.3C9.7 39.8 16.3 44 24 44z" />
+              <path fill="#FBBC05" d="M13.4 28.3a12 12 0 0 1 0-7.6v-5.3H6.4a20 20 0 0 0 0 18.2l7-5.3z" />
+              <path fill="#EA4335" d="M24 12.9c2.9 0 5.5 1 7.5 3l5.8-5.8C33.8 6.8 29.4 4.9 24 4.9c-7.7 0-14.3 4.2-17.6 10.5l7 5.3c1.5-4.5 5.7-7.8 10.6-7.8z" />
+            </svg>
+            Continue with Google
+          </button>
 
           <p className="mt-7 text-center text-sm text-ink/65">
             New to Verde? <Link to="/signup" className="font-semibold text-leaf hover:text-deep">Create an account</Link>
