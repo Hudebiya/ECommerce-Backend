@@ -3,6 +3,7 @@ import { Eye, EyeOff, Leaf } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/auth-context";
 import { useToast } from "../context/ToastContext";
+import { API_URL } from "../config.js";
 
 const inputClass = "w-full rounded-xl border border-sage/50 bg-mist px-4 py-3 text-ink outline-none transition placeholder:text-ink/40 focus:border-leaf focus:ring-2 focus:ring-leaf/20";
 
@@ -199,7 +200,7 @@ export default function Signup() {
           </div>
           <button
             type="button"
-            onClick={() => { window.location.href = import.meta.env.VITE_API_URL + "/api/auth/google"; }}
+            onClick={() => { window.location.href = `${API_URL}/api/auth/google`; }}
             className="flex w-full items-center justify-center gap-3 rounded-full border border-sage/60 bg-white px-6 py-3.5 font-semibold text-ink transition hover:bg-mist focus-visible:outline-2 focus-visible:outline-leaf"
           >
             <svg aria-hidden="true" viewBox="0 0 48 48" className="h-5 w-5">

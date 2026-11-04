@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { AuthContext } from "./auth-context";
+import { API_URL } from "../config.js";
 
-const AUTH_URL = `${import.meta.env.VITE_API_URL}/api/auth`;
+const AUTH_URL = `${API_URL}/api/auth`;
 
 async function readResponse(response) {
   const data = await response.json().catch(() => ({}));

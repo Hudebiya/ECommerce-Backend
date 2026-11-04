@@ -11,12 +11,13 @@ import cookieParser from "cookie-parser";
 const app = express();
 app.set("trust proxy", 1);
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  "http://localhost:5173",
-  "https://e-commerce-backend-pc3xjubyw-hu-team1.vercel.app",
-].filter(Boolean);
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+const clientUrl =
+  process.env.CLIENT_URL ||
+  (process.env.NODE_ENV !== "production" ? "http://localhost:5173" : null);
+if (!clientUrl) {
+  throw new Error("CLIENT_URL must be configured in production.");
+}
+app.use(cors({ origin: clientUrl, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
