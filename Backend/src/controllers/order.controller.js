@@ -10,29 +10,40 @@ function isValidShippingAddress(shippingAddress) {
 }
 
 async function createOrder(req, res) {
+    let originalCart;
+    let cartClaimed = false;
     try {
         const body = req.body ?? {};
-        const user = await userModel.findById(req.user.id).select("cart");
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
         if (!isValidShippingAddress(body.shippingAddress)) {
             return res.status(400).json({ message: "A valid shipping address is required" });
         }
-        if (!user.cart.length) {
+        const user = await userModel.findOneAndUpdate(
+            { _id: req.user.id, "cart.0": { $exists: true } },
+            { $set: { cart: [] } },
+            { new: false }
+        ).select("cart");
+        if (!user) {
             return res.status(400).json({ message: "Cart is empty" });
         }
+        originalCart = user.cart.map(({ product, quantity }) => ({ product, quantity }));
+        cartClaimed = true;
+
+        const rejectOrder = (status, message) => {
+            const error = new Error(message);
+            error.status = status;
+            throw error;
+        };
 
         const quantities = new Map();
-        for (const cartItem of user.cart) {
+        for (const cartItem of originalCart) {
             const productId = cartItem.product?.toString();
             if (!productId || !mongoose.Types.ObjectId.isValid(productId) ||
                 !Number.isSafeInteger(cartItem.quantity) || cartItem.quantity < 1) {
-                return res.status(400).json({ message: "Cart contains an invalid product or quantity" });
+                rejectOrder(400, "Cart contains an invalid product or quantity");
             }
             const quantity = (quantities.get(productId) || 0) + cartItem.quantity;
             if (!Number.isSafeInteger(quantity)) {
-                return res.status(400).json({ message: "Cart contains an invalid product quantity" });
+                rejectOrder(400, "Cart contains an invalid product quantity");
             }
             quantities.set(productId, quantity);
         }
@@ -45,10 +56,10 @@ async function createOrder(req, res) {
         for (const [productId, quantity] of quantities) {
             const product = productsById.get(productId);
             if (!product) {
-                return res.status(404).json({ message: `Product ${productId} was not found` });
+                rejectOrder(404, `Product ${productId} was not found`);
             }
             if (!Number.isSafeInteger(product.stock) || product.stock < quantity) {
-                return res.status(409).json({ message: `Insufficient stock for ${product.name}` });
+                rejectOrder(409, `Insufficient stock for ${product.name}`);
             }
             items.push({
                 product: product._id,
@@ -72,8 +83,26 @@ async function createOrder(req, res) {
             )
         });
 
+        cartClaimed = false;
         return res.status(201).json({ message: "Order created", order });
-    } catch {
+    } catch (error) {
+        if (cartClaimed) {
+            try {
+                const result = await userModel.updateOne(
+                    { _id: req.user.id },
+                    { $set: { cart: originalCart } }
+                );
+                if (result.matchedCount !== 1) {
+                    throw new Error("User no longer exists");
+                }
+            } catch {
+                console.error("Failed to restore cart after order creation failure");
+                return res.status(500).json({ message: "Failed to restore cart" });
+            }
+        }
+        if (error.status) {
+            return res.status(error.status).json({ message: error.message });
+        }
         console.error("Failed to create order");
         return res.status(500).json({ message: "Failed to create order" });
     }
