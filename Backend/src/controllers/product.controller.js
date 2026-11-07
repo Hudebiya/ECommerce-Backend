@@ -3,15 +3,27 @@ import productModel from "../models/Products.model.js";
 import userModel from "../models/users.model.js";
 import uploadFile from "../../services/storage.service.js";
 
+function getStockValue(value) {
+    if ((typeof value !== "string" && typeof value !== "number") || String(value).trim() === "") {
+        return null
+    }
+    const stock = Number(value)
+    return Number.isSafeInteger(stock) && stock >= 0 ? stock : null
+}
+
 async function createProduct(req, res) {
     try {
         const { name, desc } = req.body
         const price = Number(req.body.price)
+        const stock = req.body.stock === undefined ? 0 : getStockValue(req.body.stock)
         if (!req.file) {
             return res.status(400).json({ message: "Product image is required" })
         }
         if (!name?.trim() || !desc?.trim() || String(req.body.price ?? "").trim() === "" || !Number.isFinite(price) || price < 0) {
             return res.status(400).json({ message: "Name, description, and a nonnegative price are required" })
+        }
+        if (stock === null) {
+            return res.status(400).json({ message: "Stock must be a non-negative integer" })
         }
 
         const uploadImage = await uploadFile(req.file.buffer, req.file.originalname)
@@ -20,6 +32,7 @@ async function createProduct(req, res) {
             name: name.trim(),
             desc: desc.trim(),
             price,
+            stock,
             admin: req.user.id
         })
         const populatedProduct = await productModel.findById(product._id).populate("admin", "username email")
@@ -64,13 +77,20 @@ async function updateProduct(req, res) {
 
         const { name, desc } = req.body
         const price = Number(req.body.price)
+        const stock = req.body.stock === undefined ? undefined : getStockValue(req.body.stock)
         if (!name?.trim() || !desc?.trim() || String(req.body.price ?? "").trim() === "" || !Number.isFinite(price) || price < 0) {
             return res.status(400).json({ message: "Name, description, and a nonnegative price are required" })
+        }
+        if (stock === null) {
+            return res.status(400).json({ message: "Stock must be a non-negative integer" })
         }
 
         product.name = name.trim()
         product.desc = desc.trim()
         product.price = price
+        if (stock !== undefined) {
+            product.stock = stock
+        }
         if (req.file) {
             const uploadImage = await uploadFile(req.file.buffer, req.file.originalname)
             product.image = uploadImage.url

@@ -18,6 +18,12 @@ const productSchema= new mongoose.Schema({
         required: true, 
         min: 0 
     },
+    stock: {
+        type: Number,
+        required: false,
+        default: 0,
+        min: 0
+    },
     admin:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
