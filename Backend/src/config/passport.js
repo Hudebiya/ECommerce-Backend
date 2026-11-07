@@ -3,6 +3,17 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import userModel from "../models/users.model.js";
 
+const googleCallbackUrl = process.env.GOOGLE_CALLBACK_URL;
+if (!googleCallbackUrl) {
+    throw new Error("GOOGLE_CALLBACK_URL must be configured.");
+}
+
+try {
+    new URL(googleCallbackUrl);
+} catch {
+    throw new Error("GOOGLE_CALLBACK_URL must be an absolute URL.");
+}
+
 async function uniqueUsername(displayName) {
     const base = displayName?.trim().replace(/\s+/g, "_") || "google_user";
     let username = base;
@@ -18,7 +29,7 @@ async function uniqueUsername(displayName) {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL
+    callbackURL: googleCallbackUrl
 }, async (_accessToken, _refreshToken, profile, done) => {
     try {
         let user = await userModel.findOne({ googleId: profile.id });
