@@ -73,6 +73,7 @@ export default function Header() {
           <>
             <nav className="hidden items-center gap-8 md:flex">
               <NavLink to="/" className={linkStyle}>Home</NavLink>
+              <NavLink to="/orders" className={linkStyle}>My Orders</NavLink>
               {cartLink()}
             </nav>
 
@@ -122,6 +123,7 @@ export default function Header() {
           <p className="mb-3 truncate border-b border-white/10 pb-3 text-sm text-white/60">{username}</p>
           <div className="flex flex-col gap-4">
             <NavLink to="/" onClick={() => setMenuOpen(false)} className={linkStyle}>Home</NavLink>
+            <NavLink to="/orders" onClick={() => setMenuOpen(false)} className={linkStyle}>My Orders</NavLink>
             {cartLink(true)}
             <button
               type="button"

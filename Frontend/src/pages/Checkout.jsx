@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Banknote, CreditCard, ShoppingBag } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { useToast } from "../context/ToastContext";
+import { API_URL } from "../config.js";
 
 const inputBase =
   "w-full bg-white border rounded-2xl px-4 py-3 outline-none transition focus:ring-2 focus:ring-leaf/20";
@@ -17,7 +19,8 @@ function Field({ label, error, children }) {
 }
 
 export default function Checkout() {
-  const { cart, cartTotal, clearCart } = useCart();
+  const { cart, cartTotal, clearCart, isBusy } = useCart();
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -29,6 +32,8 @@ export default function Checkout() {
     payment: "cod",
   });
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitLockRef = useRef(false);
 
   const shipping = cartTotal > 50 ? 0 : 5;
   const total = cartTotal + shipping;
@@ -51,25 +56,66 @@ export default function Checkout() {
     return e;
   };
 
-  const handleSubmit = (ev) => {
+  const handleSubmit = async (ev) => {
     ev.preventDefault();
+    if (submitLockRef.current || isSubmitting || isBusy) return;
     const e = validate();
     setErrors(e);
     if (Object.keys(e).length > 0) return;
 
-    const orderId = "ORD-" + Math.floor(100000 + Math.random() * 900000);
+    submitLockRef.current = true;
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${API_URL}/api/orders`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shippingAddress: {
+            name: form.name.trim(),
+            phone: form.phone.trim(),
+            address: form.address.trim(),
+            city: form.city.trim(),
+          },
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to place your order.");
+      }
+      if (!data.order?._id) {
+        throw new Error("The order response did not include an order ID.");
+      }
 
-    // pehle success page par bhejein, phir cart khali karein
-    navigate("/order-success", {
-      state: { orderId, total, name: form.name.trim(), payment: form.payment },
-    });
-    clearCart();
+      clearCart();
+      navigate("/order-success", {
+        state: {
+          orderId: data.order._id,
+          total: data.order.totalAmount,
+          name: form.name.trim(),
+          payment: form.payment,
+        },
+      });
+    } catch (error) {
+      showToast(error.message || "Unable to place your order.", "error");
+    } finally {
+      submitLockRef.current = false;
+      setIsSubmitting(false);
+    }
   };
 
   const border = (name) =>
     errors[name] ? "border-red-400 focus:border-red-500" : "border-sage/40 focus:border-leaf";
 
   /* cart khali ho to checkout nahi */
+  if (isBusy && cart.length === 0) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-24 text-center" role="status">
+        Loading your cart...
+      </div>
+    );
+  }
+
   if (cart.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
@@ -112,6 +158,7 @@ export default function Checkout() {
                   value={form.name}
                   onChange={handleChange}
                   placeholder="Ayesha Khan"
+                  disabled={isSubmitting}
                   className={`${inputBase} ${border("name")}`}
                 />
               </Field>
@@ -123,6 +170,7 @@ export default function Checkout() {
                   value={form.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
+                  disabled={isSubmitting}
                   className={`${inputBase} ${border("email")}`}
                 />
               </Field>
@@ -133,6 +181,7 @@ export default function Checkout() {
                   value={form.phone}
                   onChange={handleChange}
                   placeholder="03001234567"
+                  disabled={isSubmitting}
                   className={`${inputBase} ${border("phone")}`}
                 />
               </Field>
@@ -143,6 +192,7 @@ export default function Checkout() {
                   value={form.city}
                   onChange={handleChange}
                   placeholder="Your city"
+                  disabled={isSubmitting}
                   className={`${inputBase} ${border("city")}`}
                 />
               </Field>
@@ -156,6 +206,7 @@ export default function Checkout() {
                   value={form.address}
                   onChange={handleChange}
                   placeholder="House no, street, area"
+                  disabled={isSubmitting}
                   className={`${inputBase} ${border("address")} resize-none`}
                 />
               </Field>
@@ -184,6 +235,7 @@ export default function Checkout() {
                     value={value}
                     checked={form.payment === value}
                     onChange={handleChange}
+                    disabled={isSubmitting}
                     className="accent-leaf"
                   />
                   <Icon size={22} className="text-leaf" />
@@ -236,9 +288,10 @@ export default function Checkout() {
 
           <button
             type="submit"
-            className="w-full mt-6 bg-sage text-ink font-semibold py-3.5 rounded-full hover:bg-white transition"
+            disabled={isSubmitting || isBusy}
+            className="w-full mt-6 bg-sage text-ink font-semibold py-3.5 rounded-full hover:bg-white transition disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Place Order
+            {isSubmitting ? "Placing Order..." : "Place Order"}
           </button>
         </div>
       </form>

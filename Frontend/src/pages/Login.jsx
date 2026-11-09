@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff, Leaf } from "lucide-react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/auth-context";
 import { useToast } from "../context/ToastContext";
 import { API_URL } from "../config.js";
@@ -10,6 +10,7 @@ const inputClass = "w-full rounded-xl border border-sage/50 bg-mist px-4 py-3 te
 export default function Login() {
   const { login } = useAuth();
   const { showToast } = useToast();
+  const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -46,7 +47,14 @@ export default function Login() {
     setIsLoading(true);
     try {
       await login(formData);
-      navigate("/", { replace: true });
+      const requestedPath = location.state?.from?.pathname;
+      const returnPath =
+        typeof requestedPath === "string" &&
+        requestedPath.startsWith("/") &&
+        !requestedPath.startsWith("//")
+          ? requestedPath
+          : "/";
+      navigate(returnPath, { replace: true });
     } catch (error) {
       const message = error.message || "Invalid email or password.";
       setFormError(message);
