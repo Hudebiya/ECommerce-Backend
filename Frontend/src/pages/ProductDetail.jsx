@@ -7,7 +7,7 @@ import ProductCard from "../components/ProductCard";
 
 export default function ProductDetail() {
   const { id } = useParams();
-  const { addToCart } = useCart();
+  const { addToCart, cart, isBusy } = useCart();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
@@ -33,10 +33,17 @@ export default function ProductDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const handleAdd = () => {
-    addToCart(product, qty);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1800);
+  const cartQty = cart.find((item) => item._id === product?._id)?.qty || 0;
+  const maxAddQty = Number.isFinite(product?.stock)
+    ? Math.max(0, product.stock - cartQty)
+    : Infinity;
+
+  const handleAdd = async () => {
+    const addedToCart = await addToCart(product, qty);
+    if (addedToCart) {
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1800);
+    }
   };
 
   /* LOADING */
@@ -106,14 +113,16 @@ export default function ProductDetail() {
             <div className="inline-flex items-center gap-4 bg-white border border-sage/40 rounded-full px-3 py-2">
               <button
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
+                disabled={isBusy || qty <= 1}
                 className="w-8 h-8 rounded-full bg-mist flex items-center justify-center hover:bg-sage transition"
               >
                 <Minus size={16} />
               </button>
               <span className="w-6 text-center font-semibold">{qty}</span>
               <button
-                onClick={() => setQty((q) => q + 1)}
-                className="w-8 h-8 rounded-full bg-mist flex items-center justify-center hover:bg-sage transition"
+                onClick={() => setQty((q) => Math.min(maxAddQty, q + 1))}
+                disabled={isBusy || qty >= maxAddQty}
+                className="w-8 h-8 rounded-full bg-mist flex items-center justify-center hover:bg-sage transition disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Plus size={16} />
               </button>
@@ -121,9 +130,10 @@ export default function ProductDetail() {
 
             <button
               onClick={handleAdd}
+              disabled={isBusy || qty > maxAddQty}
               className={`flex-1 min-w-48 inline-flex items-center justify-center gap-2 font-semibold py-3.5 px-8 rounded-full transition ${
                 added ? "bg-leaf text-white" : "bg-deep text-white hover:bg-leaf"
-              }`}
+              } disabled:cursor-not-allowed disabled:opacity-50`}
             >
               <ShoppingBag size={18} />
               {added ? "Added to cart!" : "Add to Cart"}

@@ -4,7 +4,11 @@ import { useCart } from "../context/CartContext";
 import { motion } from "framer-motion";
 
 export default function ProductCard({ product }) {
-    const { addToCart } = useCart();
+  const { addToCart, cart, isBusy } = useCart();
+  const cartQty = cart.find((item) => item._id === product._id)?.qty || 0;
+  const outOfStock =
+    Number.isFinite(product.stock) && cartQty >= product.stock;
+
   return (
    <motion.div
   initial={{ opacity: 0, y: 40 }}
@@ -33,12 +37,13 @@ export default function ProductCard({ product }) {
         <div className="flex items-center justify-between mt-4">
           <span className="text-xl font-bold text-deep">${product.price}</span>
           <button
-  onClick={() => addToCart(product)}
-  className="w-10 h-10 rounded-full bg-deep text-white flex items-center justify-center hover:bg-leaf hover:rotate-90 transition duration-300"
-  aria-label="Add to cart"
->
-  <Plus size={20} />
-</button>
+            onClick={() => addToCart(product)}
+            disabled={isBusy || outOfStock}
+            className="w-10 h-10 rounded-full bg-deep text-white flex items-center justify-center hover:bg-leaf hover:rotate-90 transition duration-300 disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Add to cart"
+          >
+            <Plus size={20} />
+          </button>
         </div>
       </div>
     </motion.div>

@@ -4,8 +4,15 @@ import { useCart } from "../context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Cart() {
-  const { cart, increaseQty, decreaseQty, removeFromCart, clearCart, cartTotal } =
-    useCart();
+  const {
+    cart,
+    increaseQty,
+    decreaseQty,
+    removeFromCart,
+    clearCart,
+    cartTotal,
+    isBusy,
+  } = useCart();
 
   if (cart.length === 0) {
     return (
@@ -33,7 +40,8 @@ export default function Cart() {
         <h1 className="font-display text-4xl font-bold">Shopping Cart</h1>
         <button
           onClick={clearCart}
-          className="text-sm text-ink/60 hover:text-red-600 transition"
+          disabled={isBusy}
+          className="text-sm text-ink/60 hover:text-red-600 transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           Clear all
         </button>
@@ -72,14 +80,16 @@ export default function Cart() {
                   <div className="inline-flex items-center gap-3 mt-3 bg-mist rounded-full px-2 py-1">
                     <button
                       onClick={() => decreaseQty(item._id)}
-                      className="w-7 h-7 rounded-full bg-white flex items-center justify-center hover:bg-sage transition"
+                      disabled={isBusy || item.qty <= 1}
+                      className="w-7 h-7 rounded-full bg-white flex items-center justify-center hover:bg-sage transition disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Minus size={14} />
                     </button>
                     <span className="w-5 text-center text-sm font-medium">{item.qty}</span>
                     <button
                       onClick={() => increaseQty(item._id)}
-                      className="w-7 h-7 rounded-full bg-white flex items-center justify-center hover:bg-sage transition"
+                      disabled={isBusy || (Number.isFinite(item.stock) && item.qty >= item.stock)}
+                      className="w-7 h-7 rounded-full bg-white flex items-center justify-center hover:bg-sage transition disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Plus size={14} />
                     </button>
@@ -90,6 +100,7 @@ export default function Cart() {
                   <p className="font-bold">${(item.price * item.qty).toFixed(2)}</p>
                   <button
                     onClick={() => removeFromCart(item._id)}
+                    disabled={isBusy}
                     className="mt-3 text-ink/40 hover:text-red-600 transition"
                     aria-label="Remove"
                   >

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useState } from "react";
-import { CheckCircle2, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, X } from "lucide-react";
 
 const ToastContext = createContext();
 
@@ -13,9 +13,9 @@ export function ToastProvider({ children }) {
   }, []);
 
   const showToast = useCallback(
-    (message) => {
+    (message, type = "success") => {
       const id = Date.now() + Math.random();
-      setToasts((prev) => [...prev, { id, message }]);
+      setToasts((prev) => [...prev, { id, message, type }]);
       setTimeout(() => removeToast(id), 2500); // 2.5 second baad khud chala jaye
     },
     [removeToast]
@@ -30,9 +30,15 @@ export function ToastProvider({ children }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="toast-in pointer-events-auto flex items-center gap-3 bg-ink text-white pl-4 pr-3 py-3 rounded-2xl shadow-2xl shadow-black/30 border border-white/10 max-w-sm w-full sm:w-auto"
+            className={`toast-in pointer-events-auto flex items-center gap-3 bg-ink text-white pl-4 pr-3 py-3 rounded-2xl shadow-2xl shadow-black/30 border border-white/10 max-w-sm w-full sm:w-auto ${
+              t.type === "error" ? "border-red-400/40" : ""
+            }`}
           >
-            <CheckCircle2 size={22} className="text-sage shrink-0" />
+            {t.type === "error" ? (
+              <AlertCircle size={22} className="text-red-400 shrink-0" />
+            ) : (
+              <CheckCircle2 size={22} className="text-sage shrink-0" />
+            )}
             <p className="text-sm flex-1 line-clamp-2">{t.message}</p>
             <button
               onClick={() => removeToast(t.id)}
