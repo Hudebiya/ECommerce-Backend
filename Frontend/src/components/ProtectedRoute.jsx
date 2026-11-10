@@ -3,7 +3,7 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/auth-context";
 import { useToast } from "../context/ToastContext";
 
-export default function ProtectedRoute({ guestOnly = false, children }) {
+export default function ProtectedRoute({ guestOnly = false, adminOnly = false, children }) {
   const { user, isLoading } = useAuth();
   const { showToast } = useToast();
   const location = useLocation();
@@ -26,5 +26,13 @@ export default function ProtectedRoute({ guestOnly = false, children }) {
     return user ? <Navigate to="/" replace /> : children || <Outlet />;
   }
 
-  return user ? children || <Outlet /> : <Navigate to="/login" replace state={{ from: location }} />;
+  if (!user) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (adminOnly && user.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
+
+  return children || <Outlet />;
 }

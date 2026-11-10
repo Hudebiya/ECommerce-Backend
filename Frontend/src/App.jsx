@@ -12,6 +12,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import Orders from "./pages/Orders";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import AdminOrders from "./pages/AdminOrders";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -34,6 +35,9 @@ export default function App() {
               <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
               <Route path="/order-success" element={<PageTransition><OrderSuccess /></PageTransition>} />
               <Route path="/orders" element={<PageTransition><Orders /></PageTransition>} />
+              <Route element={<ProtectedRoute adminOnly />}>
+                <Route path="/admin/orders" element={<PageTransition><AdminOrders /></PageTransition>} />
+              </Route>
               <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
             </Route>
           </Routes>

@@ -74,6 +74,7 @@ export default function Header() {
             <nav className="hidden items-center gap-8 md:flex">
               <NavLink to="/" className={linkStyle}>Home</NavLink>
               <NavLink to="/orders" className={linkStyle}>My Orders</NavLink>
+              {user.role === "admin" && <NavLink to="/admin/orders" className={linkStyle}>Admin</NavLink>}
               {cartLink()}
             </nav>
 
@@ -124,6 +125,9 @@ export default function Header() {
           <div className="flex flex-col gap-4">
             <NavLink to="/" onClick={() => setMenuOpen(false)} className={linkStyle}>Home</NavLink>
             <NavLink to="/orders" onClick={() => setMenuOpen(false)} className={linkStyle}>My Orders</NavLink>
+            {user.role === "admin" && (
+              <NavLink to="/admin/orders" onClick={() => setMenuOpen(false)} className={linkStyle}>Admin</NavLink>
+            )}
             {cartLink(true)}
             <button
               type="button"
